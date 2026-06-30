@@ -1,0 +1,6 @@
+/target
+Cargo.lock
+*.ptau
+*.zkey
+*.wtns
+.DS_Store

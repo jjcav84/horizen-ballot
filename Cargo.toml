@@ -1,0 +1,16 @@
+[package]
+name = "horizen-ballot"
+version = "0.1.0"
+edition = "2021"
+authors = ["Jacob Cavazos <jjcav84@gmail.com>"]
+license = "MIT"
+repository = "https://github.com/jjcav84/horizen-ballot"
+description = "Anonymous on-chain voting on Horizen Base L3 — Halo2 ZK proofs scored by negentropy, gated by ZenKinetic, secured by ZEN staking"
+keywords = ["horizen", "zen", "voting", "zero-knowledge", "negentropy"]
+categories = ["cryptography", "cryptography::cryptocurrencies"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+negentropy = { git = "https://github.com/jjcav84/negentropy.git" }
+zenkinetic = { git = "https://github.com/jjcav84/zenkinetic.git" }
