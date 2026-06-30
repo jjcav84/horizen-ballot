@@ -1,3 +1,7 @@
+<p align="center">
+  <a href="https://www.orkidlabs.com"><img src="assets/logo.png" alt="Orkid Labs" width="220" /></a>
+</p>
+
 # horizen-ballot — Anonymous On-Chain Voting on Horizen Base L3
 
 > *Vote without revealing who you are or how you voted. Pay zero fees for
