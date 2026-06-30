@@ -2,6 +2,8 @@
 
 > *Vote without revealing who you are or how you voted. Pay zero fees for
 > preserving privacy.*
+>
+> **By [Orkid Labs](https://www.orkidlabs.com)** — privacy-first crypto engineering
 
 Horizen adaptation of [zk-ballot](https://github.com/jjcav84/zk-ballot) —
 replaces on-chain verify costs with ZEN token staking and
@@ -73,6 +75,12 @@ Part of the negentropy-powered privacy stack for Horizen:
 - [horizen-age](https://github.com/jjcav84/horizen-age) — age verification
 - [horizen-attest](https://github.com/jjcav84/horizen-attest) — attestations
 - [horizen-ballot](https://github.com/jjcav84/horizen-ballot) — **this repo**
+
+## About
+
+Built by [Orkid Labs](https://www.orkidlabs.com) — a privacy-first crypto
+engineering lab building thermodynamic infrastructure for decentralized
+systems.
 
 ## License
 
