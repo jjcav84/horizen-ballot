@@ -143,6 +143,7 @@ contract HorizenBallotBox {
         require(prop.startTime != 0, "HorizenBallot: proposal_not_found");
         require(block.timestamp >= prop.startTime && block.timestamp < prop.endTime, "HorizenBallot: not_active");
         require(!nullifierUsed[nullifier], "HorizenBallot: already_voted");
+        require(publicSignals.length > 0, "HorizenBallot: empty_signals");
 
         // Check ZEN staking access — Pro tier required for voting
         uint256 staked = IZenToken(zenToken).stakedBalanceOf(msg.sender);
