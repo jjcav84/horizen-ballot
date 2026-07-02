@@ -100,6 +100,10 @@ contract HorizenBallotBox {
         require(treeDepth >= 2 && treeDepth <= 16, "HorizenBallot: invalid_depth");
         require(durationSecs > 0, "HorizenBallot: invalid_duration");
 
+        // Require Pro-tier stake to create proposals (prevents spam)
+        uint256 staked = IZenToken(zenToken).stakedBalanceOf(msg.sender);
+        require(staked >= PRO_STAKE, "HorizenBallot: insufficient_stake");
+
         proposalId = keccak256(abi.encodePacked(merkleRoot, treeDepth, block.timestamp));
         require(proposals[proposalId].startTime == 0, "HorizenBallot: proposal_exists");
 
@@ -145,7 +149,7 @@ contract HorizenBallotBox {
         require(staked >= PRO_STAKE, "HorizenBallot: insufficient_stake");
 
         // Verify the ZK proof
-        require(_verifyProof(proof, publicSignals), "HorizenBallot: invalid_proof");
+        require(_verifyProof(proposalId, nullifier, voteCommitment, proof, publicSignals), "HorizenBallot: invalid_proof");
 
         // Mark nullifier as used
         nullifierUsed[nullifier] = true;
@@ -177,7 +181,7 @@ contract HorizenBallotBox {
         require(block.timestamp >= prop.endTime, "HorizenBallot: not_ended");
         require(!prop.finalized, "HorizenBallot: already_finalized");
         require(yesVotes + noVotes == proposalVoteCount[proposalId], "HorizenBallot: vote_mismatch");
-        require(msg.sender == tallyOracle || msg.sender == prop.creator, "HorizenBallot: unauthorized_finalizer");
+        require(msg.sender == tallyOracle, "HorizenBallot: unauthorized_finalizer");
 
         prop.yesVotes = yesVotes;
         prop.noVotes = noVotes;
@@ -201,11 +205,24 @@ contract HorizenBallotBox {
     /// @notice Verify an ECDSA signature from the trusted issuer over the public signals.
     /// @dev Proof must be a 65-byte Ethereum signature: r (32) + s (32) + v (1).
     ///      The public signals encode [merkleRoot, nullifier, voteCommitment].
-    function _verifyProof(bytes calldata proof, uint256[] calldata publicSignals)
-        internal view returns (bool)
-    {
+    function _verifyProof(
+        bytes32 proposalId,
+        bytes32 nullifier,
+        bytes32 voteCommitment,
+        bytes calldata proof,
+        uint256[] calldata publicSignals
+    ) internal view returns (bool) {
         if (proof.length != 65) return false;
-        bytes32 digest = keccak256(abi.encodePacked(publicSignals));
+        // Bind signature to this specific action: proposalId, nullifier, commitment, chain, contract
+        // Prevents replay across different proposals or contracts
+        bytes32 digest = keccak256(abi.encodePacked(
+            proposalId,
+            nullifier,
+            voteCommitment,
+            block.chainid,
+            address(this),
+            publicSignals
+        ));
         bytes32 ethSignedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", digest));
         bytes32 r;
         bytes32 s;
