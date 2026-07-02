@@ -18,6 +18,12 @@ contract HorizenBallotBox {
     /// @notice ZenKinetic gate contract (fee determination)
     address public immutable zenKineticGate;
 
+    /// @notice Issuer address that signs valid voter credentials
+    address public immutable issuer;
+
+    /// @notice Tally oracle address that finalizes proposals
+    address public immutable tallyOracle;
+
     /// @notice Pro tier stake threshold (1,000 ZEN with 18 decimals)
     uint256 public constant PRO_STAKE = 1_000e18;
 
@@ -32,6 +38,7 @@ contract HorizenBallotBox {
         uint256 yesVotes;
         uint256 noVotes;
         bool finalized;
+        address creator;        // Address that created the proposal
     }
 
     // Proposals: proposalId => Proposal
@@ -69,9 +76,15 @@ contract HorizenBallotBox {
         bool passed
     );
 
-    constructor(address _zenToken, address _zenKineticGate) {
+    constructor(address _zenToken, address _zenKineticGate, address _issuer, address _tallyOracle) {
+        require(_zenToken != address(0), "HorizenBallot: zero_zenToken");
+        require(_zenKineticGate != address(0), "HorizenBallot: zero_zenKineticGate");
+        require(_issuer != address(0), "HorizenBallot: zero_issuer");
+        require(_tallyOracle != address(0), "HorizenBallot: zero_tallyOracle");
         zenToken = _zenToken;
         zenKineticGate = _zenKineticGate;
+        issuer = _issuer;
+        tallyOracle = _tallyOracle;
     }
 
     /// @notice Create a new voting proposal.
@@ -97,7 +110,8 @@ contract HorizenBallotBox {
             endTime: block.timestamp + durationSecs,
             yesVotes: 0,
             noVotes: 0,
-            finalized: false
+            finalized: false,
+            creator: msg.sender
         });
 
         emit ProposalCreated(proposalId, merkleRoot, treeDepth, block.timestamp, block.timestamp + durationSecs);
@@ -163,6 +177,7 @@ contract HorizenBallotBox {
         require(block.timestamp >= prop.endTime, "HorizenBallot: not_ended");
         require(!prop.finalized, "HorizenBallot: already_finalized");
         require(yesVotes + noVotes == proposalVoteCount[proposalId], "HorizenBallot: vote_mismatch");
+        require(msg.sender == tallyOracle || msg.sender == prop.creator, "HorizenBallot: unauthorized_finalizer");
 
         prop.yesVotes = yesVotes;
         prop.noVotes = noVotes;
@@ -183,10 +198,29 @@ contract HorizenBallotBox {
 
     // --- Internal helpers ---
 
+    /// @notice Verify an ECDSA signature from the trusted issuer over the public signals.
+    /// @dev Proof must be a 65-byte Ethereum signature: r (32) + s (32) + v (1).
+    ///      The public signals encode [merkleRoot, nullifier, voteCommitment].
     function _verifyProof(bytes calldata proof, uint256[] calldata publicSignals)
-        internal pure returns (bool)
+        internal view returns (bool)
     {
-        return proof.length > 0 && publicSignals.length > 0;
+        if (proof.length != 65) return false;
+        bytes32 digest = keccak256(abi.encodePacked(publicSignals));
+        bytes32 ethSignedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", digest));
+        bytes32 r;
+        bytes32 s;
+        uint8 v;
+        assembly {
+            r := calldataload(proof.offset)
+            s := calldataload(add(proof.offset, 32))
+            v := byte(0, calldataload(add(proof.offset, 64)))
+        }
+        if (v < 27) v += 27;
+        if (v != 27 && v != 28) return false;
+        // Reject malleable signatures
+        if (uint256(s) > 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0) return false;
+        address recovered = ecrecover(ethSignedHash, v, r, s);
+        return recovered == issuer;
     }
 }
 

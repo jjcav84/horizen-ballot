@@ -41,6 +41,9 @@ impl Default for VotingSession {
 
 impl VotingSession {
     pub fn new(tree_depth: usize, constraint_count: u64, registry_trust: f64, zen_staked: f64) -> Self {
+        assert!(tree_depth < 64, "tree_depth must be < 64 to avoid shift overflow");
+        assert!(registry_trust.is_finite() && (0.0..=1.0).contains(&registry_trust), "registry_trust must be in [0,1]");
+        assert!(zen_staked.is_finite() && zen_staked >= 0.0, "zen_staked must be non-negative and finite");
         Self {
             tree_depth,
             constraint_count,
@@ -55,7 +58,7 @@ impl VotingSession {
     /// This replaces zk-ballot's `BallotPotential::energy()` + on-chain
     /// verify with a ZenKinetic gate evaluation.
     pub fn evaluate(&self) -> VoteResult {
-        // Anonymity set: 2^tree_depth
+        // Anonymity set: 2^tree_depth (guarded by constructor)
         let anonymity_set = 1u64 << self.tree_depth;
 
         // Build a ZenKinetic transaction profile for the vote
