@@ -70,6 +70,44 @@ The Halo2 circuit and proof generation are the same; the chain integration
 changes from direct on-chain verify to Horizen Base L3 with ZEN staking
 and ZenKinetic privacy gating.
 
+## Thrive Horizen Genesis Program (#38) — Grant Plan
+
+### Ecosystem value proposition
+
+horizen-ballot brings anonymous on-chain voting to Horizen Base L3. Each vote generates a Halo2 ZK proof scored by the negentropy engine and gated by ZenKinetic. Privacy-preserving votes settle at 0% fee; ZEN staking (Pro tier, 1,000 ZEN) grants voting access.
+
+### Milestone roadmap
+
+Progressive achievement over 150 days, following Thrive's Horizen Genesis Program milestone structure.
+
+**Application Requirements (10% unlocked at approval)**:
+- ✅ Detailed technical architecture showcasing privacy technology implementation
+- ✅ Clear demonstration of ZK integration (Halo2 PLONK + IPA commitment)
+- ✅ Privacy-focused user experience design and privacy preservation methodology
+- ✅ ZEN token utility and ecosystem value proposition (via ZenKinetic integration)
+- ✅ Team background with relevant cryptographic and privacy expertise
+
+**Milestone 1 (20% unlocked) — 45 days post approval**:
+- Smart contract(s) deployed on Horizen testnet with privacy features functional
+- Core privacy mechanisms implemented and audited
+- Technical documentation published with privacy proofs
+- Beta testing with privacy verification and user feedback
+
+**Milestone 2 (30% unlocked) — 90 days post approval**:
+- Mainnet deployment with full privacy feature set operational
+- Privacy compliance documentation and audit reports
+- Integration with Horizen ecosystem tools and infrastructure
+- Early traction metrics (choose one):
+  - TVL: $50K+ in ZEN locked in smart contracts, staking, or liquidity pools
+  - Volume: 10,000+ transactions demonstrating privacy preservation
+  - Unique wallets: 250+ verified users utilizing privacy features
+
+**Milestone 3 (40% unlocked) — 150 days post approval**:
+- Scale metrics (choose one):
+  - TVL: $100K+ in ZEN locked in smart contracts, staking, or liquidity pools
+  - Volume: 20,000+ transactions demonstrating privacy preservation
+  - Unique Wallets: 500+ verified users utilizing privacy features
+
 ## Ecosystem
 
 Part of the negentropy-powered privacy stack for Horizen:
